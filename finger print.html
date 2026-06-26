@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyber Fingerprint Scanner</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at center, rgba(0, 255, 255, 0.12), transparent 35%),
+        linear-gradient(135deg, #02060a, #07111c 45%, #02060a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: #00f7ff;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 247, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 247, 255, 0.055) 1px, transparent 1px);
+      background-size: 34px 34px;
+      animation: gridMove 8s linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes gridMove {
+      from {
+        background-position: 0 0;
+      }
+      to {
+        background-position: 34px 34px;
+      }
+    }
+
+    .scanner {
+      position: relative;
+      width: 390px;
+      height: 560px;
+      border: 1px solid rgba(0, 247, 255, 0.25);
+      border-radius: 28px;
+      background: rgba(2, 12, 20, 0.72);
+      box-shadow:
+        0 0 25px rgba(0, 247, 255, 0.25),
+        inset 0 0 25px rgba(0, 247, 255, 0.08);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .scanner::before,
+    .scanner::after {
+      content: "";
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-color: #00f7ff;
+      border-style: solid;
+      opacity: 0.85;
+    }
+
+    .scanner::before {
+      top: 18px;
+      left: 18px;
+      border-width: 2px 0 0 2px;
+    }
+
+    .scanner::after {
+      bottom: 18px;
+      right: 18px;
+      border-width: 0 2px 2px 0;
+    }
+
+    .title {
+      position: absolute;
+      top: 38px;
+      font-size: 15px;
+      letter-spacing: 4px;
+      color: rgba(0, 247, 255, 0.9);
+      text-shadow: 0 0 12px rgba(0, 247, 255, 0.8);
+    }
+
+    .finger-box {
+      position: relative;
+      width: 265px;
+      height: 355px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 30px;
+      filter: drop-shadow(0 0 15px rgba(0, 247, 255, 0.8));
+    }
+
+    .circle {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 247, 255, 0.22);
+      box-shadow:
+        0 0 40px rgba(0, 247, 255, 0.18),
+        inset 0 0 30px rgba(0, 247, 255, 0.08);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(0.94);
+        opacity: 0.45;
+      }
+      50% {
+        transform: scale(1.06);
+        opacity: 1;
+      }
+    }
+
+    .fingerprint {
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    .fingerprint path {
+      fill: none;
+      stroke: rgba(0, 247, 255, 0.18);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: 0.4s ease;
+    }
+
+    .scanner.done .fingerprint path {
+      stroke: #00f7ff;
+      stroke-dasharray: 1400;
+      stroke-dashoffset: 1400;
+      animation: drawPrint 1s ease forwards;
+    }
+
+    .scanner.done .fingerprint path:nth-child(1)  { animation-delay: 0s; }
+    .scanner.done .fingerprint path:nth-child(2)  { animation-delay: 0.04s; }
+    .scanner.done .fingerprint path:nth-child(3)  { animation-delay: 0.08s; }
+    .scanner.done .fingerprint path:nth-child(4)  { animation-delay: 0.12s; }
+    .scanner.done .fingerprint path:nth-child(5)  { animation-delay: 0.16s; }
+    .scanner.done .fingerprint path:nth-child(6)  { animation-delay: 0.20s; }
+    .scanner.done .fingerprint path:nth-child(7)  { animation-delay: 0.24s; }
+    .scanner.done .fingerprint path:nth-child(8)  { animation-delay: 0.28s; }
+    .scanner.done .fingerprint path:nth-child(9)  { animation-delay: 0.32s; }
+    .scanner.done .fingerprint path:nth-child(10) { animation-delay: 0.36s; }
+    .scanner.done .fingerprint path:nth-child(11) { animation-delay: 0.40s; }
+    .scanner.done .fingerprint path:nth-child(12) { animation-delay: 0.44s; }
+    .scanner.done .fingerprint path:nth-child(13) { animation-delay: 0.48s; }
+    .scanner.done .fingerprint path:nth-child(14) { animation-delay: 0.52s; }
+    .scanner.done .fingerprint path:nth-child(15) { animation-delay: 0.56s; }
+
+    @keyframes drawPrint {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 12px;
+      top: 10px;
+      width: 240px;
+      height: 5px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, transparent, #00f7ff, transparent);
+      box-shadow:
+        0 0 15px #00f7ff,
+        0 0 35px rgba(0, 247, 255, 0.9),
+        0 0 65px rgba(0, 247, 255, 0.65);
+      z-index: 5;
+      animation: scan 3s linear forwards;
+    }
+
+    .scan-line::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 5px;
+      width: 100%;
+      height: 110px;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 247, 255, 0.24),
+        rgba(0, 247, 255, 0.08),
+        transparent
+      );
+      filter: blur(2px);
+    }
+
+    @keyframes scan {
+      0% {
+        top: 10px;
+        opacity: 0;
+      }
+      8% {
+        opacity: 1;
+      }
+      92% {
+        opacity: 1;
+      }
+      100% {
+        top: 330px;
+        opacity: 0;
+      }
+    }
+
+    .status {
+      margin-top: 26px;
+      font-size: 18px;
+      letter-spacing: 3px;
+      text-shadow: 0 0 12px rgba(0, 247, 255, 0.9);
+    }
+
+    .progress-wrap {
+      margin-top: 18px;
+      width: 230px;
+      height: 8px;
+      border-radius: 50px;
+      border: 1px solid rgba(0, 247, 255, 0.4);
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 247, 255, 0.25);
+    }
+
+    .progress {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00f7ff, #00ff88);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+      transition: width 0.08s linear;
+    }
+
+    .percent {
+      margin-top: 10px;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: rgba(0, 247, 255, 0.85);
+    }
+
+    .scanner.done .status {
+      color: #00ff88;
+      text-shadow: 0 0 15px rgba(0, 255, 136, 1);
+    }
+
+    .scanner.done .scan-line {
+      display: none;
+    }
+
+    .scanner.done {
+      box-shadow:
+        0 0 35px rgba(0, 255, 136, 0.28),
+        inset 0 0 30px rgba(0, 255, 136, 0.08);
+      border-color: rgba(0, 255, 136, 0.4);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="scanner" id="scanner">
+    <div class="title">BIOMETRIC SCANNER</div>
+
+    <div class="finger-box">
+      <div class="circle"></div>
+      <div class="scan-line"></div>
+
+      <svg class="fingerprint" viewBox="0 0 260 360">
+        <path d="M130 18 C85 18 50 52 50 100 C50 126 57 148 63 171 C69 193 72 216 72 245 C72 284 85 314 111 338" />
+        <path d="M130 28 C91 28 61 58 61 102 C61 127 67 148 73 170 C78 190 81 211 81 240 C81 276 93 302 116 323" />
+        <path d="M130 40 C98 40 73 66 73 104 C73 128 79 147 84 165 C89 184 92 203 92 230 C92 263 102 288 120 307" />
+        <path d="M130 52 C104 52 83 74 83 107 C83 129 88 146 93 162 C98 178 101 194 101 219 C101 249 109 271 124 289" />
+        <path d="M130 65 C111 65 95 82 95 109 C95 129 99 144 103 158 C107 172 110 186 110 208 C110 234 116 254 128 270" />
+        <path d="M130 79 C117 79 106 91 106 111 C106 127 109 140 113 152 C116 165 118 176 118 194 C118 217 123 234 132 247" />
+
+        <path d="M130 95 C144 95 156 107 156 123 C156 138 147 151 134 158 C120 165 104 159 97 145 C89 129 95 108 111 100 C128 91 150 97 163 113 C177 131 176 156 160 173 C145 190 118 194 99 182 C79 169 69 145 76 121 C83 96 106 79 132 79" />
+        <path d="M129 110 C139 110 147 118 147 128 C147 138 141 146 132 150 C121 154 109 150 104 140 C99 129 103 117 114 112 C125 107 139 110 149 119 C159 129 160 145 152 156 C142 169 123 173 108 166 C93 159 85 144 88 128" />
+        <path d="M129 123 C136 123 141 128 141 135 C141 142 137 148 131 151 C123 154 114 151 111 144 C107 137 110 129 117 125 C124 121 132 122 138 127" />
+        <path d="M128 136 C132 136 135 139 135 143 C135 147 132 150 128 151 C123 152 119 150 118 146 C116 141 119 137 123 136" />
+
+        <path d="M132 18 C175 18 210 52 210 100 C210 126 203 148 197 171 C191 193 188 216 188 245 C188 284 175 314 149 338" />
+        <path d="M132 28 C169 28 199 58 199 102 C199 127 193 148 187 170 C182 190 179 211 179 240 C179 276 167 302 144 323" />
+        <path d="M132 40 C164 40 189 66 189 104 C189 128 183 147 178 165 C173 184 170 203 170 230 C170 263 160 288 142 307" />
+        <path d="M132 52 C158 52 179 74 179 107 C179 129 174 146 169 162 C164 178 161 194 161 219 C161 249 153 271 138 289" />
+        <path d="M132 65 C151 65 167 82 167 109 C167 129 163 144 159 158 C155 172 152 186 152 208 C152 234 146 254 134 270" />
+      </svg>
+    </div>
+
+    <div class="status" id="status">SCANNING...</div>
+
+    <div class="progress-wrap">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="percent" id="percent">0%</div>
+  </div>
+
+  <script>
+    const scanner = document.getElementById("scanner");
+    const progress = document.getElementById("progress");
+    const percent = document.getElementById("percent");
+    const statusText = document.getElementById("status");
+
+    const duration = 3000;
+    const start = Date.now();
+
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const value = Math.min(Math.floor((elapsed / duration) * 100), 100);
+
+      progress.style.width = value + "%";
+      percent.textContent = value + "%";
+
+      if (value >= 100) {
+        clearInterval(timer);
+        scanner.classList.add("done");
+        statusText.textContent = "ACCESS GRANTED";
+        percent.textContent = "VERIFIED";
+      }
+    }, 30);
+  </script>
+
+</body>
+</html>
